@@ -59,7 +59,7 @@ function UI() {
             maze.printMaze();
             const solver = new DFSSolver_1.DFSSolver(maze);
             solver.solve();
-            solver.printMazeWithSolution();
+            solver.animateSolutionPath(20);
             rl.close();
         });
     });

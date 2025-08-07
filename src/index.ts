@@ -31,7 +31,7 @@ function UI(): void {
             
             const solver = new DFSSolver(maze);
             solver.solve();
-            solver.printMazeWithSolution();
+            solver.animateSolutionPath(20);
             
             rl.close();
         });
