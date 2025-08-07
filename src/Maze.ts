@@ -1,9 +1,12 @@
+import { Stack } from "./Stack";
 import { Cell } from "./Cell";
 
 export class Maze {
   readonly width: number;
   readonly height: number;
   private readonly grid: Cell[][];
+  private startCell: Cell;
+  private endCell: Cell;
 
   constructor(width: number, height: number) {
     this.width = width;
@@ -11,6 +14,10 @@ export class Maze {
     this.grid = [];
 
     this.initialiseMaze(width, height);
+    this.startCell = this.grid[0][0];
+    this.endCell = this.grid[height - 1][width - 1];
+    this.startCell.isFirstCell = true;
+    this.endCell.isLastCell = true;
   }
 
   private initialiseMaze(width: number, height: number): void {
@@ -24,7 +31,6 @@ export class Maze {
 
     // TODO: Have the first and last cells dynamically populated according to the user.
     this.grid[0][0].isFirstCell = true;
-    this.grid[height - 1][width - 1].isLastCell = true;
   }
 
   private getUnvisitedNeighbours(cell: Cell): Cell[] {
@@ -72,13 +78,39 @@ export class Maze {
     }
   }
 
-  // TODO: Write later
   // Generate Maze using DFS
-  public generateMaze(startX: number = 0, startY: number = 0): void {}
+  public generateMaze(): void {
+    const cellStack: Stack<Cell> = new Stack<Cell>;
+    const startCell = this.getFirstCell();
+    startCell.isVisited = true;
+    cellStack.push(startCell);
 
-  // TODO: Write later
+    while (!cellStack.isEmpty())
+    {
+      const currentCell = cellStack.peek();
+      const unvisitedNeighbors = this.getUnvisitedNeighbours(currentCell);
+
+      if (unvisitedNeighbors.length > 0) {
+        // Chose next neighbor that's not been visited
+        const randomIndex = Math.floor(Math.random() * unvisitedNeighbors.length);
+        const chosenNeighbor = unvisitedNeighbors[randomIndex];
+
+        chosenNeighbor.isVisited = true;
+        this.removeWall(currentCell, chosenNeighbor);
+
+        cellStack.push(chosenNeighbor);
+      } else {
+        // No unvisited neighbors, backtrack
+        cellStack.pop();
+      }
+    }
+  }
+
   // Reset Maze for next generation
-  public reset(): void {}
+  // Seperate function because easier interfacing for later
+  public reset(): void {
+    this.initialiseMaze(this.width, this.height);
+  }
 
   // TODO: Write later
   // Outputs the maze to Console in ASCII
@@ -94,5 +126,13 @@ export class Maze {
     }
 
     return this.grid[y][x];
+  }
+
+  public getFirstCell(): Cell {
+    return this.startCell;
+  }
+
+  public getEndCell(): Cell {
+    return this.endCell;
   }
 }
