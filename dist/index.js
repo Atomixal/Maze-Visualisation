@@ -1,24 +1,17 @@
 "use strict";
-class Cell {
-    constructor(x, y, isVisited, isLastCell, isFirstCell) {
-        this.x = x;
-        this.y = y;
-        this.isVisited = isVisited;
-        this.isFirstCell = isFirstCell;
-        this.isLastCell = isLastCell;
-    }
-    testFunction() {
-        console.log(`Hi, I'm a random cell, I'm at (${this.x},${this.y})`);
-        if (this.isFirstCell) {
-            console.log("I am the first cell");
-        }
-        if (this.isLastCell) {
-            console.log("I am the last cell");
-        }
-        if (this.isVisited) {
-            console.log("I have been visited.");
-        }
-    }
+Object.defineProperty(exports, "__esModule", { value: true });
+const Maze_1 = require("./Maze");
+const DFSSolver_1 = require("./DFSSolver");
+function main() {
+    const maze = new Maze_1.Maze(20, 20);
+    console.log("Generating maze...");
+    maze.printMaze();
+    console.log("unsolved maze");
+    maze.generateMaze();
+    maze.printMaze();
+    console.log("Developed maze.");
+    const solver = new DFSSolver_1.DFSSolver(maze);
+    solver.solve();
+    solver.printMazeWithSolution();
 }
-const exampleCell = new Cell(1, 2, true, false, true);
-exampleCell.testFunction();
+main();

@@ -4,9 +4,9 @@ import { Cell } from "./Cell";
 export class Maze {
   readonly width: number;
   readonly height: number;
-  private readonly grid: Cell[][];
-  private startCell: Cell;
-  private endCell: Cell;
+  protected readonly grid: Cell[][];
+  protected startCell: Cell;
+  protected endCell: Cell;
 
   constructor(width: number, height: number) {
     this.width = width;
@@ -20,7 +20,7 @@ export class Maze {
     this.endCell.isLastCell = true;
   }
 
-  private initialiseMaze(width: number, height: number): void {
+  protected initialiseMaze(width: number, height: number): void {
     for (let y = 0; y < height; y++) {
       const row: Cell[] = [];
       for (let x = 0; x < width; x++) {
@@ -33,25 +33,40 @@ export class Maze {
     this.grid[0][0].isFirstCell = true;
   }
 
-  private getUnvisitedNeighbours(cell: Cell): Cell[] {
-    const neighbours: Cell[] = [];
+  // Generic method to get neighbors with optional wall checking and custom filter
+  protected getNeighbours(
+    cell: Cell,
+    filterFn: (neighbor: Cell) => boolean,
+    respectWalls: boolean = false
+  ): Cell[] {
+    const neighbors: Cell[] = [];
     const { x, y } = cell;
 
     const directions = [
-      { dx: 0, dy: -1 },
-      { dx: 1, dy: 0 },
-      { dx: 0, dy: 1 },
-      { dx: -1, dy: 0 },
+      { dx: 0, dy: -1, wallCheck: () => !cell.topWall }, // Up
+      { dx: 1, dy: 0, wallCheck: () => !cell.rightWall }, // Right
+      { dx: 0, dy: 1, wallCheck: () => !cell.bottomWall }, // Down
+      { dx: -1, dy: 0, wallCheck: () => !cell.leftWall }, // Left
     ];
 
-    for (const { dx, dy } of directions) {
+    for (const { dx, dy, wallCheck } of directions) {
+      // If respectWalls is true, check if there's a wall blocking the path
+      if (respectWalls && !wallCheck()) {
+        continue;
+      }
+
       const neighbor = this.getCell(x + dx, y + dy);
-      if (neighbor && !neighbor.isVisited) {
-        neighbours.push(neighbor);
+      if (neighbor && filterFn(neighbor)) {
+        neighbors.push(neighbor);
       }
     }
 
-    return neighbours;
+    return neighbors;
+  }
+
+  // Convenience method for getting unvisited neighbors (for maze generation)
+  protected getUnvisitedNeighbours(cell: Cell): Cell[] {
+    return this.getNeighbours(cell, (neighbor) => !neighbor.isVisited, false);
   }
 
   private removeWall(current: Cell, neighbor: Cell): void {
@@ -199,5 +214,15 @@ export class Maze {
 
   public getEndCell(): Cell {
     return this.endCell;
+  }
+
+  // Utility method to check if two cells are the same
+  protected isSameCell(cell1: Cell, cell2: Cell): boolean {
+    return cell1.x === cell2.x && cell1.y === cell2.y;
+  }
+
+  // Utility method to create a unique key for a cell
+  protected getCellKey(cell: Cell): string {
+    return `${cell.x},${cell.y}`;
   }
 }

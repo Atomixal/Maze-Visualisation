@@ -1,33 +1,50 @@
 // Writing my own stack class because I don't know why there isn't one built in :(
 export class Stack<T> {
-    private items: T[];
+  private items: T[];
 
-    constructor() {
-        this.items = [];
-    }
+  constructor() {
+    this.items = [];
+  }
 
-    push(item: T): void {
-        this.items.push(item);
-    }
+  push(item: T): void {
+    this.items.push(item);
+  }
 
-    pop(): T | undefined {
-        return this.items.pop();
+  pop(): T {
+    if (this.isEmpty()) {
+      throw new Error("Cannot pop from empty stack");
     }
-    
-    // TODO: Implement checking for if it tries to return indefined.
-    peek(): T {
-        return this.items[this.items.length - 1];
-    }
+    return this.items.pop()!;
+  }
 
-    isEmpty(): boolean {
-        return this.items.length === 0;
+  peek(): T {
+    if (this.isEmpty()) {
+      throw new Error("Cannot peek at empty stack");
     }
+    return this.items[this.items.length - 1];
+  }
 
-    size(): number {
-        return this.items.length;
-    }
+  isEmpty(): boolean {
+    return this.items.length === 0;
+  }
 
-    clear(): void {
-        this.items = [];
-    }
+  size(): number {
+    return this.items.length;
+  }
+
+  clear(): void {
+    this.items = [];
+  }
+
+  safePop(): T | undefined {
+    return this.items.pop();
+  }
+
+  safePeek(): T | undefined {
+    return this.isEmpty() ? undefined : this.items[this.items.length - 1];
+  }
+
+  toArray(): T[] {
+    return [...this.items]; // Return a copy to prevent external modification
+  }
 }
