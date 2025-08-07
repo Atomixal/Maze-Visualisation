@@ -80,19 +80,20 @@ export class Maze {
 
   // Generate Maze using DFS
   public generateMaze(): void {
-    const cellStack: Stack<Cell> = new Stack<Cell>;
+    const cellStack: Stack<Cell> = new Stack<Cell>();
     const startCell = this.getFirstCell();
     startCell.isVisited = true;
     cellStack.push(startCell);
 
-    while (!cellStack.isEmpty())
-    {
+    while (!cellStack.isEmpty()) {
       const currentCell = cellStack.peek();
       const unvisitedNeighbors = this.getUnvisitedNeighbours(currentCell);
 
       if (unvisitedNeighbors.length > 0) {
         // Chose next neighbor that's not been visited
-        const randomIndex = Math.floor(Math.random() * unvisitedNeighbors.length);
+        const randomIndex = Math.floor(
+          Math.random() * unvisitedNeighbors.length
+        );
         const chosenNeighbor = unvisitedNeighbors[randomIndex];
 
         chosenNeighbor.isVisited = true;
@@ -112,9 +113,73 @@ export class Maze {
     this.initialiseMaze(this.width, this.height);
   }
 
-  // TODO: Write later
   // Outputs the maze to Console in ASCII
-  public printMaze(): void {}
+  public printMaze(): void {
+    let mazeString = "";
+
+    // Print the top border
+    for (let x = 0; x < this.width; x++) {
+      const cell = this.getCell(x, 0);
+      if (cell && cell.topWall) {
+        mazeString += "+---";
+      } else {
+        mazeString += "+   ";
+      }
+    }
+
+    mazeString += "+\n";
+
+    // Print each row
+    for (let y = 0; y < this.height; y++) {
+      let rowString = "";
+      for (let x = 0; x < this.width; x++) {
+        const cell = this.getCell(x, y);
+        if (!cell) continue;
+
+        // Left wall
+        if (cell.leftWall) {
+          rowString += "|";
+        } else {
+          rowString += " ";
+        }
+
+        if (cell.isFirstCell) {
+          rowString += " S ";
+        } else if (cell.isLastCell) {
+          rowString += " E ";
+        } else {
+          rowString += "   ";
+        }
+      }
+
+      // Right border
+      const rightMostCell = this.getCell(this.width - 1, y);
+      if (rightMostCell && rightMostCell.rightWall) {
+        rowString += "|";
+      } else {
+        rowString += " ";
+      }
+
+      mazeString += rowString + "\n";
+
+      // Print horizontal walls
+      let wallString = "";
+      for (let x = 0; x < this.width; x++) {
+        const cell = this.getCell(x, y);
+        if (!cell) continue;
+
+        wallString += "+";
+        if (cell.bottomWall) {
+          wallString += "---";
+        } else {
+          wallString += "   ";
+        }
+      }
+      mazeString += wallString += "+\n";
+    }
+
+    console.log(mazeString);
+  }
 
   public getCell(x: number, y: number): Cell | null {
     // Catch any out of bounds Exceptions.
