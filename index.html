@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maze Generator</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <h1>Maze Generator & Solver</h1>
+        <div class="controls">
+            <label class="input-group">Width: <input type="number" id="width" value="20" min="5" max="50" /></label>
+            <label class="input-group">Height: <input type="number" id="height" value="15" min="5" max="50" /></label>
+            <button id="generateBtn" class="primary-btn">Generate Maze</button>
+            <button id="solveBtn" class="success-btn" disabled>Solve</button>
+            <button id="stopBtn" class="secondary-btn" disabled>Stop</button>
+        </div>
+        <div class="status" id="status">Click "Generate Maze" to start.</div>
+        <div class="maze-container">
+            <canvas id="maze" width="800" height="600"></canvas>
+        </div>
+    </div>
+
+    <!-- Changed to type="module" to support ES6 imports -->
+    <script type="module" src="dist/index.js"></script>
+</body>
+
+</html>
