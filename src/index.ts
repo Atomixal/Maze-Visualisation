@@ -5,9 +5,14 @@ import { drawMaze } from "./render/renderer.js";
 let currentMaze: Maze | null = null;
 let currentSolver: DFSSolver | null = null;
 
-function getCanvasAndCtx(): { canvas: HTMLCanvasElement | null; ctx: CanvasRenderingContext2D | null } {
+function getCanvasAndCtx(): {
+  canvas: HTMLCanvasElement | null;
+  ctx: CanvasRenderingContext2D | null;
+} {
   const canvas = document.getElementById("maze") as HTMLCanvasElement | null;
-  const ctx = canvas ? (canvas.getContext("2d") as CanvasRenderingContext2D) : null;
+  const ctx = canvas
+    ? (canvas.getContext("2d") as CanvasRenderingContext2D)
+    : null;
   return { canvas, ctx };
 }
 
@@ -18,20 +23,48 @@ function updateStatus(message: string, className = "") {
   status.className = `status ${className}`;
 }
 
+function getSolvingSpeed(): number {
+  const speedInput = document.getElementById(
+    "speed"
+  ) as HTMLInputElement | null;
+  const speed = speedInput ? parseInt(speedInput.value, 10) : 100;
+
+  if (isNaN(speed) || speed < 1 || speed > 1000) {
+    return 100; // default fallback
+  }
+
+  return speed;
+}
+
 function generateMaze(): void {
-  const widthInput = document.getElementById("width") as HTMLInputElement | null;
-  const heightInput = document.getElementById("height") as HTMLInputElement | null;
+  const widthInput = document.getElementById(
+    "width"
+  ) as HTMLInputElement | null;
+  const heightInput = document.getElementById(
+    "height"
+  ) as HTMLInputElement | null;
   const width = widthInput ? parseInt(widthInput.value, 10) : 20;
   const height = heightInput ? parseInt(heightInput.value, 10) : 20;
 
-  if (isNaN(width) || isNaN(height) || width < 5 || height < 5 || width > 50 || height > 50) {
+  if (
+    isNaN(width) ||
+    isNaN(height) ||
+    width < 5 ||
+    height < 5 ||
+    width > 50 ||
+    height > 50
+  ) {
     alert("Please enter width and height between 5 and 50");
     return;
   }
 
   updateStatus("Generating maze...", "generating");
-  const solveBtn = document.getElementById("solveBtn") as HTMLButtonElement | null;
-  const stopBtn = document.getElementById("stopBtn") as HTMLButtonElement | null;
+  const solveBtn = document.getElementById(
+    "solveBtn"
+  ) as HTMLButtonElement | null;
+  const stopBtn = document.getElementById(
+    "stopBtn"
+  ) as HTMLButtonElement | null;
   if (solveBtn) solveBtn.disabled = true;
   if (stopBtn) stopBtn.disabled = true;
 
@@ -54,29 +87,60 @@ async function solveMaze(): Promise<void> {
   }
 
   currentSolver = new DFSSolver(currentMaze);
+  const solvingSpeed = getSolvingSpeed();
 
-  updateStatus("Solving maze...", "solving");
-  const solveBtn = document.getElementById("solveBtn") as HTMLButtonElement | null;
-  const stopBtn = document.getElementById("stopBtn") as HTMLButtonElement | null;
+  updateStatus(`Solving maze at ${solvingSpeed}ms per step...`, "solving");
+  const solveBtn = document.getElementById(
+    "solveBtn"
+  ) as HTMLButtonElement | null;
+  const stopBtn = document.getElementById(
+    "stopBtn"
+  ) as HTMLButtonElement | null;
+
   if (solveBtn) solveBtn.disabled = true;
   if (stopBtn) stopBtn.disabled = false;
 
   const { canvas, ctx } = getCanvasAndCtx();
 
-  const solved = await currentSolver.solveAnimated((currentCell, visitedCells, isBacktracking) => {
-    const { canvas: c, ctx: g } = getCanvasAndCtx();
-    if (g && c && currentMaze) drawMaze(g, c, currentMaze, visitedCells, currentCell, !!isBacktracking);
-  }, 100);
+  const solved = await currentSolver.solveAnimated(
+    (currentCell, visitedCells, isBacktracking) => {
+      const { canvas: c, ctx: g } = getCanvasAndCtx();
+      if (g && c && currentMaze)
+        drawMaze(
+          g,
+          c,
+          currentMaze,
+          visitedCells,
+          currentCell,
+          !!isBacktracking
+        );
+    },
+    solvingSpeed
+  ); // Use the dynamic speed value here
 
   if (solved && currentSolver.isAnimationRunning() !== false) {
     updateStatus("Maze solved! Showing solution path...", "solved");
     const { canvas: c, ctx: g } = getCanvasAndCtx();
     if (g && c && currentMaze && currentSolver) {
-      drawMaze(g, c, currentMaze, currentSolver.visitedCells, null, false, currentSolver.getSolutionPath());
+      drawMaze(
+        g,
+        c,
+        currentMaze,
+        currentSolver.visitedCells,
+        null,
+        false,
+        currentSolver.getSolutionPath()
+      );
     }
 
     setTimeout(() => {
-      if (currentSolver) updateStatus(`Solution found! Path length: ${currentSolver.getSolutionPath().length} steps`, "solved");
+      if (currentSolver)
+        updateStatus(
+          `Solution found! Path length: ${
+            currentSolver.getSolutionPath().length
+          } steps`,
+          "solved"
+        );
     }, 1000);
   } else if (currentSolver && !currentSolver.isAnimationRunning()) {
     updateStatus("Solving stopped", "");
@@ -92,8 +156,12 @@ function stopSolving(): void {
   if (currentSolver) {
     currentSolver.stopAnimation();
     updateStatus("Solving stopped", "");
-    const solveBtn = document.getElementById("solveBtn") as HTMLButtonElement | null;
-    const stopBtn = document.getElementById("stopBtn") as HTMLButtonElement | null;
+    const solveBtn = document.getElementById(
+      "solveBtn"
+    ) as HTMLButtonElement | null;
+    const stopBtn = document.getElementById(
+      "stopBtn"
+    ) as HTMLButtonElement | null;
     if (solveBtn) solveBtn.disabled = false;
     if (stopBtn) stopBtn.disabled = true;
   }
@@ -101,9 +169,15 @@ function stopSolving(): void {
 
 // Wire up buttons if present
 window.addEventListener("load", () => {
-  const genBtn = document.getElementById("generateBtn") as HTMLButtonElement | null;
-  const solveBtn = document.getElementById("solveBtn") as HTMLButtonElement | null;
-  const stopBtn = document.getElementById("stopBtn") as HTMLButtonElement | null;
+  const genBtn = document.getElementById(
+    "generateBtn"
+  ) as HTMLButtonElement | null;
+  const solveBtn = document.getElementById(
+    "solveBtn"
+  ) as HTMLButtonElement | null;
+  const stopBtn = document.getElementById(
+    "stopBtn"
+  ) as HTMLButtonElement | null;
 
   if (genBtn) genBtn.addEventListener("click", generateMaze);
   if (solveBtn) solveBtn.addEventListener("click", () => void solveMaze());

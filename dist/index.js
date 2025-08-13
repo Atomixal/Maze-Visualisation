@@ -5,7 +5,9 @@ let currentMaze = null;
 let currentSolver = null;
 function getCanvasAndCtx() {
     const canvas = document.getElementById("maze");
-    const ctx = canvas ? canvas.getContext("2d") : null;
+    const ctx = canvas
+        ? canvas.getContext("2d")
+        : null;
     return { canvas, ctx };
 }
 function updateStatus(message, className = "") {
@@ -15,12 +17,25 @@ function updateStatus(message, className = "") {
     status.textContent = message;
     status.className = `status ${className}`;
 }
+function getSolvingSpeed() {
+    const speedInput = document.getElementById("speed");
+    const speed = speedInput ? parseInt(speedInput.value, 10) : 100;
+    if (isNaN(speed) || speed < 1 || speed > 1000) {
+        return 100; // default fallback
+    }
+    return speed;
+}
 function generateMaze() {
     const widthInput = document.getElementById("width");
     const heightInput = document.getElementById("height");
     const width = widthInput ? parseInt(widthInput.value, 10) : 20;
     const height = heightInput ? parseInt(heightInput.value, 10) : 20;
-    if (isNaN(width) || isNaN(height) || width < 5 || height < 5 || width > 50 || height > 50) {
+    if (isNaN(width) ||
+        isNaN(height) ||
+        width < 5 ||
+        height < 5 ||
+        width > 50 ||
+        height > 50) {
         alert("Please enter width and height between 5 and 50");
         return;
     }
@@ -49,7 +64,8 @@ async function solveMaze() {
         return;
     }
     currentSolver = new DFSSolver(currentMaze);
-    updateStatus("Solving maze...", "solving");
+    const solvingSpeed = getSolvingSpeed();
+    updateStatus(`Solving maze at ${solvingSpeed}ms per step...`, "solving");
     const solveBtn = document.getElementById("solveBtn");
     const stopBtn = document.getElementById("stopBtn");
     if (solveBtn)
@@ -61,7 +77,7 @@ async function solveMaze() {
         const { canvas: c, ctx: g } = getCanvasAndCtx();
         if (g && c && currentMaze)
             drawMaze(g, c, currentMaze, visitedCells, currentCell, !!isBacktracking);
-    }, 100);
+    }, solvingSpeed); // Use the dynamic speed value here
     if (solved && currentSolver.isAnimationRunning() !== false) {
         updateStatus("Maze solved! Showing solution path...", "solved");
         const { canvas: c, ctx: g } = getCanvasAndCtx();
