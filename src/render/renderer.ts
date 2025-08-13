@@ -198,18 +198,15 @@ function drawStartEndLabels(
       // Draw labels with better contrast
       ctx.save();
       ctx.fillStyle = "white";
-      ctx.strokeStyle = "#333";
-      ctx.lineWidth = 2;
       ctx.font = `bold ${cellSize * 0.4}px Arial`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      
+
       const text = cell.isFirstCell ? "S" : "E";
       const textX = cellX + cellSize / 2;
       const textY = cellY + cellSize / 2;
       
-      // Draw text outline for better visibility
-      ctx.strokeText(text, textX, textY);
+      // Draw text without outline
       ctx.fillText(text, textX, textY);
       
       ctx.restore();
